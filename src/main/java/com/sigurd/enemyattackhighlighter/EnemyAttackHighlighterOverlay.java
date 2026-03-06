@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.NPC;
+import net.runelite.api.Point;
 import net.runelite.api.Perspective;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.client.ui.overlay.Overlay;
@@ -60,7 +61,7 @@ public class EnemyAttackHighlighterOverlay extends Overlay
 				Shape hull = npc.getConvexHull();
 				if (hull != null)
 				{
-					graphics.setStroke(new BasicStroke(config.outlineStrokeWidth()));
+					graphics.setStroke(new BasicStroke(2));
 					OverlayUtil.renderPolygon(graphics, hull, color);
 				}
 			}
@@ -77,6 +78,27 @@ public class EnemyAttackHighlighterOverlay extends Overlay
 				if (tile != null)
 				{
 					OverlayUtil.renderPolygon(graphics, tile, color);
+				}
+			}
+
+			if (config.debugTaggedNpcs())
+			{
+				String npcName = npc.getName() == null ? "Unknown NPC" : npc.getName();
+				int secondsRemaining = plugin.getSecondsRemaining(npc);
+				int cooldownRemaining = plugin.getRetagCooldownRemainingSeconds(npc);
+				String cooldownText = cooldownRemaining < 0 ? "lock" : cooldownRemaining + "s";
+				String timerText = secondsRemaining < 0 ? "inf" : secondsRemaining + "s";
+				String label = "Tagged: " + npcName + " (" + timerText + ", cd:" + cooldownText + ")";
+				Point textLocation = Perspective.getCanvasTextLocation(
+					client,
+					graphics,
+					npc.getLocalLocation(),
+					label,
+					npc.getLogicalHeight() + 40
+				);
+				if (textLocation != null)
+				{
+					OverlayUtil.renderTextLocation(graphics, textLocation, label, color);
 				}
 			}
 		}
